@@ -32,29 +32,40 @@ function App() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [sheWantsToBeMyValentine, setSheWantsToBeMyValentine] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false); // Track user interaction
+  const [hasInteracted, setHasInteracted] = useState(false);
   const { width, height } = useWindowSize();
 
-  // Theme music for all pages
+  // Audio references
   const [themeAudio] = useState(new Audio("/assets/theme.mp3"));
-  // Song for the last page
   const [finalAudio] = useState(new Audio("/assets/song.mp3"));
 
+  // Play the theme song after user interaction
   useEffect(() => {
-    if (hasInteracted) {
-      // Play the theme song after the first interaction
+    if (hasInteracted && !sheWantsToBeMyValentine) {
       themeAudio.loop = true;
       themeAudio.volume = 0.3;
-      themeAudio.play().catch((error) => console.log("Theme audio autoplay error:", error));
+      themeAudio
+        .play()
+        .catch((error) => console.log("Theme audio autoplay error:", error));
     }
-  }, [hasInteracted, themeAudio]);
+  }, [hasInteracted, themeAudio, sheWantsToBeMyValentine]);
 
+  // Handle final song play and theme pause
   useEffect(() => {
     if (sheWantsToBeMyValentine) {
       themeAudio.pause();
-      finalAudio.play().catch((error) => console.log("Final audio autoplay error:", error));
+      finalAudio
+        .play()
+        .catch((error) => console.log("Final audio autoplay error:", error));
     }
   }, [sheWantsToBeMyValentine, themeAudio, finalAudio]);
+
+  // Resume theme song if user navigates back
+  useEffect(() => {
+    if (!sheWantsToBeMyValentine && hasInteracted) {
+      themeAudio.play().catch((error) => console.log("Theme audio resume error:", error));
+    }
+  }, [currentStep, hasInteracted, themeAudio, sheWantsToBeMyValentine]);
 
   return (
     <>
@@ -106,7 +117,7 @@ function App() {
           <>
             <button
               onClick={() => {
-                if (!hasInteracted) setHasInteracted(true); // Set interaction on first click
+                if (!hasInteracted) setHasInteracted(true);
                 setCurrentStep(currentStep + 1);
               }}
               className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-10 font-semibold"
