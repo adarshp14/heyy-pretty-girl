@@ -148,6 +148,11 @@ function App() {
           </>
         )}
       </div>
+
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 w-full bg-[#FFC5D3] text-white text-center py-2">
+        <p className="text-sm">Made with 💖 by AP</p>
+      </footer>
     </>
   );
 }
