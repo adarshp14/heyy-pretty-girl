@@ -6,7 +6,7 @@ import { LogSnag } from "@logsnag/node";
 
 const logsnag = new LogSnag({
   token: "LOGSNAG_TOKEN",
-  project: "project_name", // Ensure this is a valid name
+  project: "project_name",
 });
 
 const track = async () => {
@@ -21,58 +21,41 @@ const track = async () => {
 
 function App() {
   const steps = [
-    {
-      content: "Heyyyyy, pretty girl.",
-      image: "/character/one.png",
-    },
-    {
-      content: `Recently, we met.
-      And somehow, you've been on my mind ever since.
-      `,
-      image: "/character/two.png",
-    },
-    {
-      content: `Then we went on our first date…And I realized—yep, I want this girl. For life.
-      `,
-      image: "/character/three.png",
-    },
-    {
-      content: `You're beautiful, you're smart, you're fun,
-and you make spending time together feel too short.`,
-      image: "/character/four.png",
-    },
-    {
-      content: `I look forward to when I'll see you again,
-hold your hands, and look into your pretty eyes.`,
-      image: "/character/five.png",
-    },
-    {
-      content: "So now I've got a question for you…",
-      image: "/character/six.png",
-    },
-    {
-      content: "Will you be my Valentine?",
-      image: "/character/seven.png",
-    },
+    { content: "Heyyyyy, pretty girl.", image: "/character/one.png" },
+    { content: `Recently, we met.\nAnd somehow, you've been on my mind ever since.`, image: "/character/two.png" },
+    { content: `Then we went on our first date…And I realized—yep, I want this girl. For life.`, image: "/character/three.png" },
+    { content: `You're beautiful, you're smart, you're fun, and you make spending time together feel too short.`, image: "/character/four.png" },
+    { content: `I look forward to when I'll see you again, hold your hands, and look into your pretty eyes.`, image: "/character/five.png" },
+    { content: "So now I've got a question for you…", image: "/character/six.png" },
+    { content: "Will you be my Valentine?", image: "/character/seven.png" },
   ];
+
   const [currentStep, setCurrentStep] = useState(0);
   const [sheWantsToBeMyValentine, setSheWantsToBeMyValentine] = useState(false);
   const { width, height } = useWindowSize();
 
-  // Load audio file
-  const [audio] = useState(new Audio("/assets/song.mp3"));
+  // Theme music for all pages
+  const [themeAudio] = useState(new Audio("/assets/theme.mp3"));
+  // Song for the last page
+  const [finalAudio] = useState(new Audio("/assets/song.mp3"));
 
   useEffect(() => {
-    const imagePaths = [
-      ...steps.map((step) => step.image),
-      "/character/yayyyy.png",
-    ];
+    // Play the theme song on app load
+    themeAudio.loop = true; // Loop the theme song
+    themeAudio.volume = 0.3; // Soft volume
+    themeAudio.play().catch((error) => console.log("Theme audio autoplay error:", error));
 
-    imagePaths.forEach((path) => {
-      const img = new Image();
-      img.src = path;
-    });
-  }, []);
+    // Clean up the theme audio on unmount
+    return () => themeAudio.pause();
+  }, [themeAudio]);
+
+  useEffect(() => {
+    // Play the final song when the last page is reached
+    if (sheWantsToBeMyValentine) {
+      themeAudio.pause(); // Stop theme song
+      finalAudio.play().catch((error) => console.log("Final audio autoplay error:", error));
+    }
+  }, [sheWantsToBeMyValentine, themeAudio, finalAudio]);
 
   return (
     <>
@@ -144,7 +127,6 @@ hold your hands, and look into your pretty eyes.`,
               onClick={async () => {
                 setSheWantsToBeMyValentine(true);
                 await track();
-                audio.play(); // Play song when "Yes" is clicked
               }}
               className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-10 font-semibold"
             >
