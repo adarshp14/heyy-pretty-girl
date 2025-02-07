@@ -32,6 +32,7 @@ function App() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [sheWantsToBeMyValentine, setSheWantsToBeMyValentine] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false); // Track user interaction
   const { width, height } = useWindowSize();
 
   // Theme music for all pages
@@ -40,13 +41,13 @@ function App() {
   const [finalAudio] = useState(new Audio("/assets/song.mp3"));
 
   useEffect(() => {
-    // Play the theme song after user interaction
-    themeAudio.loop = true;
-    themeAudio.volume = 0.3;
-    themeAudio.play().catch((error) => console.log("Theme audio autoplay error:", error));
-
-    return () => themeAudio.pause();
-  }, [themeAudio]);
+    if (hasInteracted) {
+      // Play the theme song after the first interaction
+      themeAudio.loop = true;
+      themeAudio.volume = 0.3;
+      themeAudio.play().catch((error) => console.log("Theme audio autoplay error:", error));
+    }
+  }, [hasInteracted, themeAudio]);
 
   useEffect(() => {
     if (sheWantsToBeMyValentine) {
@@ -104,7 +105,10 @@ function App() {
         {currentStep < 6 && (
           <>
             <button
-              onClick={() => setCurrentStep(currentStep + 1)}
+              onClick={() => {
+                if (!hasInteracted) setHasInteracted(true); // Set interaction on first click
+                setCurrentStep(currentStep + 1);
+              }}
               className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-10 font-semibold"
             >
               Next
