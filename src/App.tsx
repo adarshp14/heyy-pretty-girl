@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useWindowSize } from "react-use";
 import Confetti from "react-confetti";
 import { motion } from "framer-motion";
@@ -21,13 +21,13 @@ const track = async () => {
 
 function App() {
   const steps = [
-    { content: "Heyyyyy, pretty girl.", image: "/character/one.webp" },
-    { content: "Recently, we met.\nAnd somehow, you've been on my mind ever since.", image: "/character/two.webp" },
-    { content: "Then we went on our first date…And I realized—yep, I want this girl. For life.", image: "/character/three.webp" },
-    { content: "You're beautiful, you're smart, you're fun, and you make spending time together feel too short.", image: "/character/four.webp" },
-    { content: "I look forward to when I'll see you again, hold your hands, and look into your pretty eyes.", image: "/character/five.webp" },
-    { content: "So now I've got a question for you…", image: "/character/six.webp" },
-    { content: "Will you be my Valentine?", image: "/character/seven.webp" },
+    { content: "Heyyyyy, pretty girl.", image: "/character/one.png" },
+    { content: `Recently, we met.\nAnd somehow, you've been on my mind ever since.`, image: "/character/two.png" },
+    { content: `Then we went on our first date…And I realized—yep, I want this girl. For life.`, image: "/character/three.png" },
+    { content: `You're beautiful, you're smart, you're fun, and you make spending time together feel too short.`, image: "/character/four.png" },
+    { content: `I look forward to when I'll see you again, hold your hands, and look into your pretty eyes.`, image: "/character/five.png" },
+    { content: "So now I've got a question for you…", image: "/character/six.png" },
+    { content: "Will you be my Valentine?", image: "/character/seven.png" },
   ];
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -35,73 +35,97 @@ function App() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const { width, height } = useWindowSize();
 
-  // Audio references using useRef (better performance)
-  const themeAudio = useRef(new Audio("/assets/theme.mp3"));
-  const finalAudio = useRef(new Audio("/assets/song.mp3"));
+  // Audio references
+  const [themeAudio] = useState(new Audio("/assets/theme.mp3"));
+  const [finalAudio] = useState(new Audio("/assets/song.mp3"));
 
-  // Preload images for faster navigation
-  useEffect(() => {
-    const imagePaths = steps.map((step) => step.image);
-    imagePaths.forEach((path) => {
-      const img = new Image();
-      img.src = path;
-    });
-  }, []);
-
-  // Handle visibility changes (Pause when tab is hidden)
+  // Handle page visibility changes
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        themeAudio.current.pause();
-        finalAudio.current.pause();
+        themeAudio.pause(); // Pause theme audio if hidden
+        finalAudio.pause(); // Pause final audio if hidden
       } else if (hasInteracted && !sheWantsToBeMyValentine) {
-        themeAudio.current.play().catch(() => console.log("Theme resume error"));
+        themeAudio.play().catch((error) => console.log("Resume theme error:", error));
       } else if (sheWantsToBeMyValentine) {
-        finalAudio.current.play().catch(() => console.log("Final resume error"));
+        finalAudio.play().catch((error) => console.log("Resume final error:", error));
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [hasInteracted, sheWantsToBeMyValentine]);
 
-  // Play theme song after user interaction
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hasInteracted, sheWantsToBeMyValentine, themeAudio, finalAudio]);
+
+  // Play the theme song after user interaction
   useEffect(() => {
     if (hasInteracted && !sheWantsToBeMyValentine) {
-      themeAudio.current.loop = true;
-      themeAudio.current.volume = 0.3;
-      themeAudio.current.play().catch(() => console.log("Theme autoplay error"));
+      themeAudio.loop = true;
+      themeAudio.volume = 0.3;
+      themeAudio
+        .play()
+        .catch((error) => console.log("Theme audio autoplay error:", error));
     }
-  }, [hasInteracted, sheWantsToBeMyValentine]);
+  }, [hasInteracted, themeAudio, sheWantsToBeMyValentine]);
 
-  // Play final song and stop theme music when reaching the last page
+  // Handle final song play and theme pause
   useEffect(() => {
     if (sheWantsToBeMyValentine) {
-      themeAudio.current.pause();
-      finalAudio.current.currentTime = 0;
-      finalAudio.current.play().catch(() => console.log("Final audio autoplay error"));
+      themeAudio.pause();
+      finalAudio.currentTime = 0; // Reset final audio position
+      finalAudio
+        .play()
+        .catch((error) => console.log("Final audio autoplay error:", error));
     } else {
-      finalAudio.current.pause();
+      finalAudio.pause(); // Stop final song if navigating back
     }
-  }, [sheWantsToBeMyValentine]);
+  }, [sheWantsToBeMyValentine, themeAudio, finalAudio]);
 
   return (
     <>
       {sheWantsToBeMyValentine && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           <Confetti width={width} height={height} />
           <div className="fixed top-0 left-0 w-full h-full bg-[#FFC5D3] flex flex-col items-center justify-center">
-            <motion.h1 initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }} className="text-white text-4xl font-bold">
+            <motion.h1
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: "spring" }}
+              className="text-white text-4xl font-bold"
+            >
               Yayyyyyyy!!!!!
             </motion.h1>
-            <img src="/character/yayyyy.png" alt="" className="w-40 animate-bounce" />
+            <img
+              src="/character/yayyyy.png"
+              alt=""
+              className="w-40 animate-bounce"
+            />
           </div>
         </motion.div>
       )}
-
       <div className="bg-[#FFC5D3] min-h-screen text-white p-5 flex flex-col items-center justify-center max-w-md mx-auto">
-        <motion.img key={currentStep} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} src={steps[currentStep].image} alt="" className="w-40" />
-        <motion.div key={currentStep + "-text"} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="font-josefin text-4xl font-bold text-center">
+        <motion.img
+          key={currentStep}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          src={steps[currentStep].image}
+          alt=""
+          className="w-40"
+        />
+        <motion.div
+          key={currentStep + "-text"}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="font-josefin text-4xl font-bold"
+        >
           {steps[currentStep].content}
         </motion.div>
 
@@ -117,7 +141,10 @@ function App() {
               Next
             </button>
             {currentStep > 0 && (
-              <button onClick={() => setCurrentStep(currentStep - 1)} className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-2 font-semibold opacity-90">
+              <button
+                onClick={() => setCurrentStep(currentStep - 1)}
+                className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-2 font-semibold opacity-90"
+              >
                 Back
               </button>
             )}
@@ -125,10 +152,24 @@ function App() {
         )}
         {currentStep === 6 && (
           <>
-            <motion.button whileHover={{ scale: 1.1 }} onClick={async () => setSheWantsToBeMyValentine(true)} className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-40 mt-10 font-semibold">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              onClick={async () => {
+                setSheWantsToBeMyValentine(true);
+                await track();
+              }}
+              className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-40 mt-10 font-semibold"
+            >
               Yes
             </motion.button>
-            <motion.button whileHover={{ scale: 1.1, rotate: 10 }} onClick={async () => setSheWantsToBeMyValentine(true)} className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-40 mt-2 font-semibold opacity-90">
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 10 }}
+              onClick={async () => {
+                setSheWantsToBeMyValentine(true);
+                await track();
+              }}
+              className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-40 mt-2 font-semibold opacity-90"
+            >
               Yes
             </motion.button>
           </>
