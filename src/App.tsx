@@ -43,9 +43,12 @@ function App() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        themeAudio.pause(); // Pause when tab is inactive
+        themeAudio.pause(); // Pause theme audio if hidden
+        finalAudio.pause(); // Pause final audio if hidden
       } else if (hasInteracted && !sheWantsToBeMyValentine) {
-        themeAudio.play().catch((error) => console.log("Resume audio error:", error));
+        themeAudio.play().catch((error) => console.log("Resume theme error:", error));
+      } else if (sheWantsToBeMyValentine) {
+        finalAudio.play().catch((error) => console.log("Resume final error:", error));
       }
     };
 
@@ -54,7 +57,7 @@ function App() {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [hasInteracted, themeAudio, sheWantsToBeMyValentine]);
+  }, [hasInteracted, sheWantsToBeMyValentine, themeAudio, finalAudio]);
 
   // Play the theme song after user interaction
   useEffect(() => {
