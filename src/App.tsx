@@ -71,9 +71,12 @@ function App() {
   useEffect(() => {
     if (sheWantsToBeMyValentine) {
       themeAudio.pause();
+      finalAudio.currentTime = 0; // Reset final audio position
       finalAudio
         .play()
         .catch((error) => console.log("Final audio autoplay error:", error));
+    } else {
+      finalAudio.pause(); // Stop final song if navigating back
     }
   }, [sheWantsToBeMyValentine, themeAudio, finalAudio]);
 
