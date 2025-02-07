@@ -39,6 +39,23 @@ function App() {
   const [themeAudio] = useState(new Audio("/assets/theme.mp3"));
   const [finalAudio] = useState(new Audio("/assets/song.mp3"));
 
+  // Handle page visibility changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        themeAudio.pause(); // Pause when tab is inactive
+      } else if (hasInteracted && !sheWantsToBeMyValentine) {
+        themeAudio.play().catch((error) => console.log("Resume audio error:", error));
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hasInteracted, themeAudio, sheWantsToBeMyValentine]);
+
   // Play the theme song after user interaction
   useEffect(() => {
     if (hasInteracted && !sheWantsToBeMyValentine) {
@@ -59,13 +76,6 @@ function App() {
         .catch((error) => console.log("Final audio autoplay error:", error));
     }
   }, [sheWantsToBeMyValentine, themeAudio, finalAudio]);
-
-  // Resume theme song if user navigates back
-  useEffect(() => {
-    if (!sheWantsToBeMyValentine && hasInteracted) {
-      themeAudio.play().catch((error) => console.log("Theme audio resume error:", error));
-    }
-  }, [currentStep, hasInteracted, themeAudio, sheWantsToBeMyValentine]);
 
   return (
     <>
