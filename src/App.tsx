@@ -58,6 +58,7 @@ hold your hands, and look into your pretty eyes.`,
   const [currentStep, setCurrentStep] = useState(0);
   const [sheWantsToBeMyValentine, setSheWantsToBeMyValentine] = useState(false);
   const { width, height } = useWindowSize();
+  const [audio] = useState(new Audio("/assets/song.mp3")); // Ensure song is in /public/assets/
 
   useEffect(() => {
     const imagePaths = [
@@ -138,24 +139,28 @@ hold your hands, and look into your pretty eyes.`,
         {currentStep === 6 && (
           <>
             <button
-              onClick={async () => {
-                setSheWantsToBeMyValentine(true);
-                await track();
-              }}
-              className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-10 font-semibold"
-            >
-              Yes
-            </button>
+  onClick={async () => {
+    setSheWantsToBeMyValentine(true);
+    await track();
+    audio.play(); // 🎵 Play the song when "Yes" is clicked
+  }}
+  className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-10 font-semibold"
+>
+  Yes
+</button>
 
-            <button
-              onClick={async () => {
-                setSheWantsToBeMyValentine(true);
-                await track();
-              }}
-              className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-2 font-semibold"
-            >
-              Yes
-            </button>
+
+           <button
+  onClick={async () => {
+    setSheWantsToBeMyValentine(true);
+    await track();
+    audio.play(); // 🎵 Play the song when "Yes" is clicked
+  }}
+  className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-10 font-semibold"
+>
+  Yes
+</button>
+
           </>
         )}
       </div>
