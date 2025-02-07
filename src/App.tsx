@@ -40,19 +40,17 @@ function App() {
   const [finalAudio] = useState(new Audio("/assets/song.mp3"));
 
   useEffect(() => {
-    // Play the theme song on app load
-    themeAudio.loop = true; // Loop the theme song
-    themeAudio.volume = 0.3; // Soft volume
+    // Play the theme song after user interaction
+    themeAudio.loop = true;
+    themeAudio.volume = 0.3;
     themeAudio.play().catch((error) => console.log("Theme audio autoplay error:", error));
 
-    // Clean up the theme audio on unmount
     return () => themeAudio.pause();
   }, [themeAudio]);
 
   useEffect(() => {
-    // Play the final song when the last page is reached
     if (sheWantsToBeMyValentine) {
-      themeAudio.pause(); // Stop theme song
+      themeAudio.pause();
       finalAudio.play().catch((error) => console.log("Final audio autoplay error:", error));
     }
   }, [sheWantsToBeMyValentine, themeAudio, finalAudio]);
@@ -123,15 +121,26 @@ function App() {
         )}
         {currentStep === 6 && (
           <>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.1 }}
               onClick={async () => {
                 setSheWantsToBeMyValentine(true);
                 await track();
               }}
-              className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-full mt-10 font-semibold"
+              className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-40 mt-10 font-semibold"
             >
               Yes
-            </button>
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 10 }}
+              onClick={async () => {
+                setSheWantsToBeMyValentine(true);
+                await track();
+              }}
+              className="bg-white text-[#FFC5D3] py-3 text-xl rounded-xl w-40 mt-2 font-semibold opacity-90"
+            >
+              Yes
+            </motion.button>
           </>
         )}
       </div>
